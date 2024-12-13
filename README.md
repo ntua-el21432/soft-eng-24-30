@@ -1,4 +1,4 @@
-# SoftEng-template
+# SoftEng-templatess
 
 Template repository, used for NTUA/ECE Software Engineering, 2024-2025
 
