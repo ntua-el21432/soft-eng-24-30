@@ -1,14 +1,21 @@
+require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
-const authRoutes = require('./routes/auth');
-
+const db = require('./utils/db.config');
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+app.get('/test-db', async (req, res) => {
+    try {
+        const [rows] = await db.query('SHOW TABLES');
+        res.status(200).json({ success: true, tables: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Routes
-app.use('/api/auth', authRoutes);
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on http://localhost:${process.env.PORT}`);
+});
 
-module.exports = app;
+app.get('/', (req, res) => {
+    res.send("Hello World! This is the back-end server.");
+})
