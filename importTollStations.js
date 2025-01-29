@@ -34,7 +34,6 @@ connection.query('SELECT company_id, company_abbr FROM tollcompanies', (err, res
                 const headersMap = {
                     0: "OpID",
                     2: "TollID",
-                    4: "PM",
                     5: "Locality",
                     6: "Road",
                     7: "Lat",
@@ -61,7 +60,6 @@ connection.query('SELECT company_id, company_abbr FROM tollcompanies', (err, res
             }
 
             const station_name = row["TollID"]?.trim();
-            const position_marker = row["PM"]?.trim();
             const locality = row["Locality"]?.trim();
             const road = row["Road"]?.trim();
             const latitude = parseFloat(row["Lat"]);
@@ -74,11 +72,11 @@ connection.query('SELECT company_id, company_abbr FROM tollcompanies', (err, res
 
             // Insert into tollstations
             const query = `
-                INSERT INTO tollstations (company_id, station_name, position_marker, locality, road, latitude, longitude, email, price1, price2, price3, price4)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO tollstations (company_id, station_name, locality, road, latitude, longitude, email, price1, price2, price3, price4)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
 
-            connection.query(query, [company_id, station_name, position_marker, locality, road, latitude, longitude, email, price1, price2, price3, price4], (err, res) => {
+            connection.query(query, [company_id, station_name, locality, road, latitude, longitude, email, price1, price2, price3, price4], (err, res) => {
                 if (err) console.error('Insert error:', err);
                 else console.log(`Inserted: ${station_name} under company_id: ${company_id}`);
             });
