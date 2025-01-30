@@ -6,6 +6,8 @@ const db = require('./utils/db.config');
 // Import routes
 const tollStationPassesRoutes = require("./routes/tollStationPasses");
 const passAnalysisRoutes = require("./routes/passAnalysis");
+const passesCostRoutes = require("./routes/passesCost");
+
 
 const app = express();
 
@@ -25,6 +27,7 @@ app.get('/test-db', async (req, res) => {
 // Συνδέουμε τα API routes
 app.use("/api", tollStationPassesRoutes);
 app.use("/api", passAnalysisRoutes);
+app.use("/api", passesCostRoutes);
 
 // Default route
 app.get('/', (req, res) => {
