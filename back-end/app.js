@@ -8,6 +8,7 @@ const tollStationPassesRoutes = require("./routes/tollStationPasses");
 const passAnalysisRoutes = require("./routes/passAnalysis");
 const passesCostRoutes = require("./routes/passesCost");
 const chargesByRoutes = require("./routes/chargesBy");
+const netChargesRoutes = require("./routes/netCharges");
 
 
 
@@ -31,6 +32,7 @@ app.use("/api", tollStationPassesRoutes);
 app.use("/api", passAnalysisRoutes);
 app.use("/api", passesCostRoutes);
 app.use("/api", chargesByRoutes);
+app.use("/api", netChargesRoutes);
 
 // Default route
 app.get('/', (req, res) => {
