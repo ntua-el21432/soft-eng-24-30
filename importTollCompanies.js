@@ -17,8 +17,8 @@ fs.createReadStream('tollstations2024.csv') // Ensure the filename is correct
         separator: ',', // Ensure correct delimiter
         mapHeaders: ({ header, index }) => {
             const headersMap = {
-                0: "OpID",
-                1: "Operator"
+                0: "company_id",  // Use OpID as company_id
+                1: "company_name" // Use Operator as company_name
             };
             return headersMap[index] || null; // Only keep needed headers
         }
@@ -26,33 +26,33 @@ fs.createReadStream('tollstations2024.csv') // Ensure the filename is correct
     .on('data', (row) => {
         console.log("Row Data:", row); // Debugging: Check parsed headers
 
-        // Extract company_abbr and company_name correctly
-        const companyAbbr = row["OpID"]?.trim().toUpperCase();
-        const companyName = row["Operator"]?.trim();
+        // Extract company_id and company_name correctly
+        const companyId = row["company_id"]?.trim().toUpperCase();
+        const companyName = row["company_name"]?.trim();
 
-        if (!companyAbbr || !companyName) {
-            console.warn("Skipping row due to missing OpID or Operator:", row);
+        if (!companyId || !companyName) {
+            console.warn("Skipping row due to missing company_id or company_name:", row);
             return;
         }
 
-        // Ensure we only store unique OpID → Operator pairs
-        if (!uniqueCompanies.has(companyAbbr)) {
-            uniqueCompanies.set(companyAbbr, companyName);
+        // Ensure we only store unique company_id → company_name pairs
+        if (!uniqueCompanies.has(companyId)) {
+            uniqueCompanies.set(companyId, companyName);
         }
     })
     .on('end', () => {
         console.log(`Found ${uniqueCompanies.size} unique companies.`);
 
         const query = `
-            INSERT INTO tollcompanies (company_name, company_abbr) 
+            INSERT INTO tollcompanies (company_id, company_name) 
             VALUES (?, ?)
             ON DUPLICATE KEY UPDATE company_name = VALUES(company_name)
         `;
 
-        uniqueCompanies.forEach((companyName, companyAbbr) => {
-            connection.query(query, [companyName, companyAbbr], (err, res) => {
+        uniqueCompanies.forEach((companyName, companyId) => {
+            connection.query(query, [companyId, companyName], (err, res) => {
                 if (err) console.error('Insert error:', err);
-                else console.log(`Inserted/Updated: ${companyAbbr} - ${companyName}`);
+                else console.log(`Inserted/Updated: ${companyId} - ${companyName}`);
             });
         });
 
