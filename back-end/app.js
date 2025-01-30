@@ -7,6 +7,8 @@ const db = require('./utils/db.config');
 const tollStationPassesRoutes = require("./routes/tollStationPasses");
 const passAnalysisRoutes = require("./routes/passAnalysis");
 const passesCostRoutes = require("./routes/passesCost");
+const chargesByRoutes = require("./routes/chargesBy");
+
 
 
 const app = express();
@@ -28,6 +30,7 @@ app.get('/test-db', async (req, res) => {
 app.use("/api", tollStationPassesRoutes);
 app.use("/api", passAnalysisRoutes);
 app.use("/api", passesCostRoutes);
+app.use("/api", chargesByRoutes);
 
 // Default route
 app.get('/', (req, res) => {
