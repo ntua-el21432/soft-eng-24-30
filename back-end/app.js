@@ -10,6 +10,9 @@ const passesCostRoutes = require("./routes/passesCost");
 const chargesByRoutes = require("./routes/chargesBy");
 const netChargesRoutes = require("./routes/netCharges");
 const healthcheckRoutes = require("./routes/healthcheck");
+const resetStationsRoutes = require("./routes/resetStations");
+const resetPassesRoutes = require("./routes/resetPasses");
+
 
 
 
@@ -35,6 +38,8 @@ app.use("/api", passesCostRoutes);
 app.use("/api", chargesByRoutes);
 app.use("/api", netChargesRoutes);
 app.use("/api", healthcheckRoutes);
+app.use("/api", resetStationsRoutes);
+app.use("/api", resetPassesRoutes);
 
 // Default route
 app.get('/', (req, res) => {
