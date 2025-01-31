@@ -45,7 +45,7 @@ async function importTollCompanies() {
     return new Promise((resolve, reject) => {
         const companies = new Map();
 
-        fs.createReadStream("/Users/fotismon/softeng24-30/tollstations2024.csv")
+        fs.createReadStream("tollstations2024.csv")
             .pipe(csv({
                 separator: ",",
                 mapHeaders: ({ header, index }) => {
