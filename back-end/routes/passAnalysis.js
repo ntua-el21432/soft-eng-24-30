@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../utils/db.config"); // Σύνδεση με MySQL
+const { Parser } = require("json2csv");
 
 // GET /passAnalysis/:stationOpID/:tagOpID/:date_from/:date_to
 router.get("/passAnalysis/:stationOpID/:tagOpID/:date_from/:date_to", async (req, res) => {
     const { stationOpID, tagOpID, date_from, date_to } = req.params;
-    const requestTimestamp = new Date().toISOString(); // Χρόνος που έγινε το request
+    const format = req.query.format || "json"; // Ορισμός προεπιλεγμένου format ως JSON
+    const requestTimestamp = new Date().toISOString();
 
     // Μετατροπή ημερομηνιών στη σωστή μορφή
     const startDate = `${date_from.substring(0,4)}-${date_from.substring(4,6)}-${date_from.substring(6,8)} 00:00:00`;
@@ -31,7 +33,7 @@ router.get("/passAnalysis/:stationOpID/:tagOpID/:date_from/:date_to", async (req
             return res.status(204).send(); // No Content
         }
 
-        // Σύνθεση της τελικής απάντησης
+        // Σύνθεση της απάντησης
         const response = {
             stationOpID: stationOpID,
             tagOpID: tagOpID,
@@ -48,6 +50,18 @@ router.get("/passAnalysis/:stationOpID/:tagOpID/:date_from/:date_to", async (req
                 passCharge: row.charge
             }))
         };
+
+        // Διαχείριση διαφορετικών μορφών απάντησης
+        if (format === "csv") {
+            const fields = ["passIndex", "passID", "stationID", "timestamp", "tagID", "passCharge"];
+            const opts = { fields };
+            const parser = new Parser(opts);
+            const csvData = parser.parse(response.passList);
+
+            res.header("Content-Type", "text/csv");
+            res.attachment("passAnalysis.csv");
+            return res.send(csvData);
+        }
 
         res.json(response);
     } catch (err) {
