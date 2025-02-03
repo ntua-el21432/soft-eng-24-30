@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../utils/db.config"); // Σύνδεση με MySQL
 
 // GET /tollStationPasses/:tollStationID/:date_from/:date_to
-router.get("/tollStationPasses/:tollStationID/:date_from/:date_to", async (req, res) => {
+router.get("/tollStationPasses/:tollStationID?/:date_from?/:date_to?", async (req, res) => {
     const { tollStationID, date_from, date_to } = req.params;
     const requestTimestamp = new Date().toISOString(); // Χρόνος που έγινε το request
 
