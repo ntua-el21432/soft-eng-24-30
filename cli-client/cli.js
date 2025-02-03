@@ -115,4 +115,17 @@ program
     }
   });
 
+  // 🚦 6️⃣ Command: Health Check
+program
+.command('healthcheck')
+.description('Check database health status')
+.action(async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/admin/healthcheck`);
+    console.log(chalk.greenBright("✅ Health Check Result:"), response.data);
+  } catch (error) {
+    console.error(chalk.red("❌ Health Check Failed:"), error.message);
+  }
+});
+
 program.parse(process.argv);
