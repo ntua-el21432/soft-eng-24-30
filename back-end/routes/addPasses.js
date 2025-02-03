@@ -4,7 +4,7 @@ const pool = require("../utils/db.config"); // Σύνδεση με MySQL
 const fs = require("fs");
 const csv = require("csv-parser");
 
-router.post("/admin/importpasses", async (req, res) => {
+router.post("/admin/addpasses", async (req, res) => {
     try {
         console.log("🚀 Starting import of passes data...");
 
