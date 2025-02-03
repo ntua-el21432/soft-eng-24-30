@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../utils/db.config"); // Σύνδεση με MySQL
+const pool = require("../utils/db.config");
+const { Parser } = require("json2csv"); // Βιβλιοθήκη για μετατροπή JSON σε CSV
 
 // GET /tollStationPasses/:tollStationID/:date_from/:date_to
 router.get("/tollStationPasses/:tollStationID?/:date_from?/:date_to?", async (req, res) => {
     const { tollStationID, date_from, date_to } = req.params;
+    const format = req.query.format || "json"; // Default format: JSON
     const requestTimestamp = new Date().toISOString(); // Χρόνος που έγινε το request
 
     // 🛑 Validate input: If any parameter is missing, return 400 Bad Request
@@ -66,7 +68,15 @@ router.get("/tollStationPasses/:tollStationID?/:date_from?/:date_to?", async (re
             }))
         };
 
-        res.status(200).json(response);
+        if (format === "csv") {
+            const json2csvParser = new Parser();
+            const csv = json2csvParser.parse(response.passList);
+            res.header("Content-Type", "text/csv");
+            res.attachment("tollStationPasses.csv");
+            return res.send(csv);
+        } else {
+            res.json(response);
+        }
     } catch (err) {
         console.error("DB Error:", err);
         res.status(500).json({ error: "Internal Server Error", details: err.message });
