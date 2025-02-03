@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../utils/db.config"); // Σύνδεση με MySQL
+const { Parser } = require("json2csv"); // Βιβλιοθήκη για εξαγωγή CSV
 
 // GET /chargesBy/:tollOpID/:date_from/:date_to
 router.get("/chargesBy/:tollOpID/:date_from/:date_to", async (req, res) => {
     const { tollOpID, date_from, date_to } = req.params;
+    const { format } = req.query; // Λήψη του format από τα query parameters
     const requestTimestamp = new Date().toISOString(); // Χρόνος που έγινε το request
 
     // Μετατροπή ημερομηνιών σε μορφή YYYY-MM-DD HH:MM:SS
@@ -43,7 +45,19 @@ router.get("/chargesBy/:tollOpID/:date_from/:date_to", async (req, res) => {
             }))
         };
 
-        res.json(response);
+        // Έλεγχος για τον τύπο επιστροφής (JSON ή CSV)
+        if (format === "csv") {
+            const csvFields = ["visitingOpID", "nPasses", "passesCost"];
+            const json2csvParser = new Parser({ fields: csvFields });
+            const csvData = json2csvParser.parse(response.vOpList);
+
+            res.header("Content-Type", "text/csv");
+            res.attachment(`chargesBy_${tollOpID}_${date_from}_${date_to}.csv`);
+            return res.send(csvData);
+        } else {
+            // Default JSON
+            res.json(response);
+        }
     } catch (err) {
         console.error("DB Error:", err);
         res.status(500).json({ error: "Internal server error", details: err.message });
