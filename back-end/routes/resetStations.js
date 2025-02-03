@@ -156,5 +156,3 @@ async function importTollStations() {
             });
     });
 }
-
-console.log("✅ resetStations.js loaded successfully.");
