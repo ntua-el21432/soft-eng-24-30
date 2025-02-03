@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../utils/db.config"); // Σύνδεση με MySQL
+const pool = require("../utils/db.config");
 const fs = require("fs");
 const csv = require("csv-parser");
+const { Parser } = require("json2csv"); // Για μετατροπή JSON σε CSV
 
 router.post("/admin/addpasses", async (req, res) => {
     try {
@@ -17,6 +18,7 @@ router.post("/admin/addpasses", async (req, res) => {
 
         // **2. Εισαγωγή δεδομένων από passes-sample.csv**
         const insertPassesPromises = [];
+        const passesData = [];
 
         fs.createReadStream(filePath)
             .pipe(csv({
@@ -43,6 +45,15 @@ router.post("/admin/addpasses", async (req, res) => {
                     console.warn(`⚠️ Skipping row - Missing required fields: ${JSON.stringify(row)}`);
                     return;
                 }
+
+                // Αποθήκευση των δεδομένων για επιλογή μορφοτύπου
+                passesData.push({
+                    timestamp,
+                    station_id,
+                    tag_id,
+                    company_id,
+                    charge
+                });
 
                 // Εισαγωγή tag στον πίνακα vehicletags (αν δεν υπάρχει)
                 const tagQuery = `
@@ -81,7 +92,21 @@ router.post("/admin/addpasses", async (req, res) => {
                 try {
                     await Promise.all(insertPassesPromises);
                     console.log("✅ Import completed successfully.");
-                    res.json({ status: "OK", message: "Passes imported successfully." });
+
+                    // **Έλεγχος μορφοτύπου από το query parameter**
+                    const format = req.query.format || "json";
+
+                    if (format === "csv") {
+                        const json2csvParser = new Parser();
+                        const csvData = json2csvParser.parse(passesData);
+                        res.header("Content-Type", "text/csv");
+                        res.attachment("passes-data.csv");
+                        return res.send(csvData);
+                    }
+
+                    // Default επιστροφή σε JSON
+                    res.json({ status: "OK", message: "Passes imported successfully.", data: passesData });
+
                 } catch (err) {
                     console.error("❌ Insert error:", err.message);
                     res.status(500).json({ status: "failed", info: "Error inserting passes" });
