@@ -4,12 +4,28 @@ const pool = require("../utils/db.config");
 const { Parser } = require("json2csv"); // Βιβλιοθήκη για μετατροπή JSON σε CSV
 
 // GET /tollStationPasses/:tollStationID/:date_from/:date_to
-router.get("/tollStationPasses/:tollStationID/:date_from/:date_to", async (req, res) => {
+router.get("/tollStationPasses/:tollStationID?/:date_from?/:date_to?", async (req, res) => {
     const { tollStationID, date_from, date_to } = req.params;
     const format = req.query.format || "json"; // Default format: JSON
-    const requestTimestamp = new Date().toISOString();
+    const requestTimestamp = new Date().toISOString(); // Χρόνος που έγινε το request
 
-    // Μετατροπή ημερομηνιών στη σωστή μορφή
+    // 🛑 Validate input: If any parameter is missing, return 400 Bad Request
+    if (!tollStationID || !date_from || !date_to) {
+        return res.status(400).json({ error: "Bad Request", message: "Missing required parameters." });
+    }
+
+    // Validate date format (basic check)
+    const dateRegex = /^\d{8}$/;
+    if (!dateRegex.test(date_from) || !dateRegex.test(date_to)) {
+        return res.status(400).json({ error: "Bad Request", message: "Invalid date format. Use YYYYMMDD." });
+    }
+
+    // Placeholder for authentication (if needed in the future)
+    // if (!req.user) {
+    //    return res.status(401).json({ error: "Not Authorized", message: "Authentication required." });
+    // }
+
+    // Convert dates to SQL-compatible format
     const startDate = `${date_from.substring(0,4)}-${date_from.substring(4,6)}-${date_from.substring(6,8)} 00:00:00`;
     const endDate = `${date_to.substring(0,4)}-${date_to.substring(4,6)}-${date_to.substring(6,8)} 23:59:59`;
 
@@ -28,11 +44,12 @@ router.get("/tollStationPasses/:tollStationID/:date_from/:date_to", async (req, 
             [tollStationID, startDate, endDate]
         );
 
+        // ✅ 204 No Content if no records found
         if (results.length === 0) {
-            return res.status(204).send(); // No Content
+            return res.status(204).send();
         }
 
-        // Σύνθεση της τελικής απάντησης
+        // ✅ 200 Success - Build response
         const response = {
             stationID: tollStationID,
             stationOperator: results[0].stationOperator || "Unknown",
@@ -51,35 +68,18 @@ router.get("/tollStationPasses/:tollStationID/:date_from/:date_to", async (req, 
             }))
         };
 
-        // **Υποστήριξη CSV ή JSON**
         if (format === "csv") {
-            const fields = [
-                "stationID", "stationOperator", "requestTimestamp",
-                "periodFrom", "periodTo", "nPasses",
-                "passIndex", "passID", "timestamp", "tagID",
-                "tagProvider", "passType", "passCharge"
-            ];
-            const csvParser = new Parser({ fields });
-            const csvData = csvParser.parse(response.passList.map(pass => ({
-                stationID: response.stationID,
-                stationOperator: response.stationOperator,
-                requestTimestamp: response.requestTimestamp,
-                periodFrom: response.periodFrom,
-                periodTo: response.periodTo,
-                nPasses: response.nPasses,
-                ...pass
-            })));
-
+            const json2csvParser = new Parser();
+            const csv = json2csvParser.parse(response.passList);
             res.header("Content-Type", "text/csv");
-            res.attachment(`tollStationPasses_${tollStationID}_${date_from}_${date_to}.csv`);
-            return res.send(csvData);
+            res.attachment("tollStationPasses.csv");
+            return res.send(csv);
+        } else {
+            res.json(response);
         }
-
-        // Default επιστροφή JSON
-        res.json(response);
     } catch (err) {
         console.error("DB Error:", err);
-        res.status(500).json({ error: "Internal server error", details: err.message });
+        res.status(500).json({ error: "Internal Server Error", details: err.message });
     }
 });
 
