@@ -13,7 +13,7 @@ const healthcheckRoutes = require("./routes/healthcheck");
 const resetStationsRoutes = require("./routes/resetStations");
 const resetPassesRoutes = require("./routes/resetPasses");
 const addPassesRoutes = require("./routes/addPasses");
-
+const operatorsRouter = require("./routes/operators");
 
 
 const app = express();
@@ -41,6 +41,7 @@ app.use("/api", healthcheckRoutes);
 app.use("/api", resetStationsRoutes);
 app.use("/api", resetPassesRoutes);
 app.use("/api", addPassesRoutes);
+app.use("/api", operatorsRouter); 
 
 // Default route
 app.get('/', (req, res) => {
