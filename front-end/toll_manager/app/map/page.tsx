@@ -1,145 +1,107 @@
-"use client"; // Required for client-side interactivity
+"use client"; // Required for Next.js if using React-Leaflet
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { LatLngExpression } from "leaflet";
-import axios from "axios";
-import { useEffect, useState } from "react";
 
-// Define the structure of a toll station
+// Define toll station type
 interface TollStation {
-  stationID: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  name?: string;
-  operator?: string;
-  address?: string;
-  tollCostCar?: number;
-  tollCostBike?: number;
-  tollCostTruck?: number;
-  tollCostBus?: number;
+  station_id: string;
+  station_name: string;
+  locality: string;
+  latitude: number;
+  longitude: number;
 }
 
-export default function MapPage() {
-  const [tollStations, setTollStations] = useState<TollStation[]>([]);
-  const [filteredStations, setFilteredStations] = useState<TollStation[]>([]);
-  const [selectedStation, setSelectedStation] = useState<TollStation | null>(null);
-  const [operators, setOperators] = useState<string[]>([]);
-  const [selectedOperator, setSelectedOperator] = useState<string>("");
-  const [error, setError] = useState<string>("");
+// Dynamically import react-leaflet components
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+const Popup = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Popup),
+  { ssr: false }
+);
 
-  // Fetch all toll stations on page load
+// Custom icon for toll stations
+const tollIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const MapPage: React.FC = () => {
+  const [tollStations, setTollStations] = useState<TollStation[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchTollStations = async () => {
       try {
-        const response = await axios.get("http://localhost:9115/api/tollStations");
-        setTollStations(response.data);
-        setFilteredStations(response.data);
-
-        // Extract unique operators for the dropdown
-        const uniqueOperators = Array.from(
-          new Set(response.data.map((station: TollStation) => station.operator))
-        );
-        setOperators(uniqueOperators.filter(Boolean) as string[]);
-      } catch (err) {
-        setError("Failed to load toll stations. Please try again.");
+        const response = await fetch("http://localhost:3000/api/tollstations");
+        if (!response.ok) {
+          throw new Error("Failed to fetch toll stations");
+        }
+        const data: TollStation[] = await response.json();
+        setTollStations(data);
+      } catch (error) {
+        console.error("Error fetching toll stations:", error);
+        setError("Failed to load toll stations. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchTollStations();
   }, []);
 
-  // Handle operator filter change
-  const handleOperatorFilter = async (operatorID: string) => {
-    setSelectedOperator(operatorID);
-    try {
-      const response = await axios.get(
-        `http://localhost:9115/api/tollStations/${operatorID}`
-      );
-      setFilteredStations(response.data);
-    } catch (err) {
-      setError("Failed to filter toll stations. Please try again.");
-    }
-  };
+  if (loading) {
+    return <div className="text-center mt-8">Loading...</div>;
+  }
 
-  // Handle station selection
-  const handleStationClick = async (stationID: string) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:9115/api/tollStations/${stationID}`
-      );
-      setSelectedStation(response.data);
-    } catch (err) {
-      setError("Failed to load station details. Please try again.");
-    }
-  };
+  if (error) {
+    return <div className="text-center mt-8 text-red-500">{error}</div>;
+  }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Toll Stations Map</h1>
+    <div className="h-screen w-screen">
+      <h1 className="text-center text-2xl font-bold mt-4">Toll Stations in Greece</h1>
 
-      {/* Operator Filter Dropdown */}
-      <div className="mb-4">
-        <label htmlFor="operator" className="mr-2">
-          Filter by Operator:
-        </label>
-        <select
-          id="operator"
-          value={selectedOperator}
-          onChange={(e) => handleOperatorFilter(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="">All Operators</option>
-          {operators.map((operator) => (
-            <option key={operator} value={operator}>
-              {operator}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Error Message */}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-
-      {/* Map Container */}
       <MapContainer
-        center={[37.9838, 23.7275]} // Center on Athens, Greece
-        zoom={10}
-        style={{ height: "600px", width: "100%" }}
+        center={[39.0742, 21.8243]}
+        zoom={7}
+        style={{ height: "90vh", width: "100%" }}
       >
+        {/* OpenStreetMap Tile Layer */}
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {/* Display Filtered Stations as Pins */}
-        {filteredStations.map((station) => (
+        {/* Map each toll station */}
+        {tollStations.map((station) => (
           <Marker
-            key={station.stationID}
-            position={[station.location.lat, station.location.lng] as LatLngExpression}
-            eventHandlers={{
-              click: () => handleStationClick(station.stationID),
-            }}
+            key={station.station_id}
+            position={[station.latitude, station.longitude]}
+            icon={tollIcon}
           >
-            {/* Popup with Station Details */}
-            {selectedStation?.stationID === station.stationID && (
-              <Popup>
-                <div>
-                  <h2 className="font-bold">{selectedStation.name}</h2>
-                  <p>Operator: {selectedStation.operator}</p>
-                  <p>Address: {selectedStation.address}</p>
-                  <p>Costs:</p>
-                  <ul>
-                    <li>Car: €{selectedStation.tollCostCar}</li>
-                    <li>Bike: €{selectedStation.tollCostBike}</li>
-                    <li>Truck: €{selectedStation.tollCostTruck}</li>
-                    <li>Bus: €{selectedStation.tollCostBus}</li>
-                  </ul>
-                </div>
-              </Popup>
-            )}
+            <Popup>
+              <strong>{station.station_name}</strong>
+              <br />
+              Located in: {station.locality}
+            </Popup>
           </Marker>
         ))}
       </MapContainer>
     </div>
   );
-}
+};
+
+export default MapPage;
