@@ -13,6 +13,7 @@ const healthcheckRoutes = require("./routes/healthcheck");
 const resetStationsRoutes = require("./routes/resetStations");
 const resetPassesRoutes = require("./routes/resetPasses");
 const addPassesRoutes = require("./routes/addPasses");
+const mapStationsRoutes = require("./routes/mapStations"); // Import the new route
 
 
 
@@ -41,6 +42,7 @@ app.use("/api", healthcheckRoutes);
 app.use("/api", resetStationsRoutes);
 app.use("/api", resetPassesRoutes);
 app.use("/api", addPassesRoutes);
+app.use("/api", mapStationsRoutes);
 
 // Default route
 app.get('/', (req, res) => {
