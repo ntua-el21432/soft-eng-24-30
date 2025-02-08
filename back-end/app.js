@@ -15,8 +15,6 @@ const resetPassesRoutes = require("./routes/resetPasses");
 const addPassesRoutes = require("./routes/addPasses");
 const mapStationsRoutes = require("./routes/mapStations"); // Import the new route
 
-
-
 const app = express();
 
 app.use(express.json()); // Middleware για JSON parsing
