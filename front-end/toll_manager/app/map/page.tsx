@@ -1,142 +1,80 @@
-"use client"; // Required for client-side interactivity
+"use client"; // Mark this component as a Client Component
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { LatLngExpression } from "leaflet";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-// Define the structure of a toll station
-interface TollStation {
-  stationID: string;
+// Fix for default marker icons in Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "/images/marker-icon-2x.png",
+  iconUrl: "/images/marker-icon.png",
+  shadowUrl: "/images/marker-shadow.png",
+});
+
+interface Station {
+  stationID: number;
+  companyID: number;
   location: {
     lat: number;
     lng: number;
   };
-  name?: string;
-  operator?: string;
-  address?: string;
-  tollCostCar?: number;
-  tollCostBike?: number;
-  tollCostTruck?: number;
-  tollCostBus?: number;
 }
 
 export default function MapPage() {
-  const [tollStations, setTollStations] = useState<TollStation[]>([]);
-  const [filteredStations, setFilteredStations] = useState<TollStation[]>([]);
-  const [selectedStation, setSelectedStation] = useState<TollStation | null>(null);
-  const [operators, setOperators] = useState<string[]>([]);
-  const [selectedOperator, setSelectedOperator] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [stations, setStations] = useState<Station[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch all toll stations on page load
   useEffect(() => {
-    const fetchTollStations = async () => {
+    // Fetch toll stations from the API
+    const fetchStations = async () => {
       try {
-        const response = await axios.get("http://localhost:9115/api/tollStations");
-        setTollStations(response.data);
-        setFilteredStations(response.data);
-
-        // Extract unique operators for the dropdown
-        const uniqueOperators = Array.from(
-          new Set(response.data.map((station: TollStation) => station.operator))
-        );
-        setOperators(uniqueOperators.filter(Boolean) as string[]);
+        const response = await fetch("http://localhost:9115/api/mapStations");
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const data = await response.json();
+        setStations(data);
       } catch (err) {
-        setError("Failed to load toll stations. Please try again.");
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchTollStations();
+    fetchStations();
   }, []);
 
-  // Handle operator filter change
-  const handleOperatorFilter = async (operatorID: string) => {
-    setSelectedOperator(operatorID);
-    try {
-      const response = await axios.get(
-        `http://localhost:9115/api/tollStations/${operatorID}`
-      );
-      setFilteredStations(response.data);
-    } catch (err) {
-      setError("Failed to filter toll stations. Please try again.");
-    }
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  // Handle station selection
-  const handleStationClick = async (stationID: string) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:9115/api/tollStations/${stationID}`
-      );
-      setSelectedStation(response.data);
-    } catch (err) {
-      setError("Failed to load station details. Please try again.");
-    }
-  };
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Toll Stations Map</h1>
-
-      {/* Operator Filter Dropdown */}
-      <div className="mb-4">
-        <label htmlFor="operator" className="mr-2">
-          Filter by Operator:
-        </label>
-        <select
-          id="operator"
-          value={selectedOperator}
-          onChange={(e) => handleOperatorFilter(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="">All Operators</option>
-          {operators.map((operator) => (
-            <option key={operator} value={operator}>
-              {operator}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Error Message */}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-
-      {/* Map Container */}
+    <div style={{ height: "100vh", width: "100%" }}>
       <MapContainer
-        center={[37.9838, 23.7275]} // Center on Athens, Greece
-        zoom={10}
-        style={{ height: "600px", width: "100%" }}
+        center={[39.0742, 21.8243]} // Center of Greece
+        zoom={7}
+        style={{ height: "100%", width: "100%" }}
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-        {/* Display Filtered Stations as Pins */}
-        {filteredStations.map((station) => (
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        {stations.map((station) => (
           <Marker
             key={station.stationID}
-            position={[station.location.lat, station.location.lng] as LatLngExpression}
-            eventHandlers={{
-              click: () => handleStationClick(station.stationID),
-            }}
+            position={[station.location.lat, station.location.lng]}
           >
-            {/* Popup with Station Details */}
-            {selectedStation?.stationID === station.stationID && (
-              <Popup>
-                <div>
-                  <h2 className="font-bold">{selectedStation.name}</h2>
-                  <p>Operator: {selectedStation.operator}</p>
-                  <p>Address: {selectedStation.address}</p>
-                  <p>Costs:</p>
-                  <ul>
-                    <li>Car: €{selectedStation.tollCostCar}</li>
-                    <li>Bike: €{selectedStation.tollCostBike}</li>
-                    <li>Truck: €{selectedStation.tollCostTruck}</li>
-                    <li>Bus: €{selectedStation.tollCostBus}</li>
-                  </ul>
-                </div>
-              </Popup>
-            )}
+            <Popup>
+              Station ID: {station.stationID} <br />
+              Company ID: {station.companyID}
+            </Popup>
           </Marker>
         ))}
       </MapContainer>
