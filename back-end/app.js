@@ -15,6 +15,8 @@ const resetPassesRoutes = require("./routes/resetPasses");
 const addPassesRoutes = require("./routes/addPasses");
 const operatorsRouter = require("./routes/operators");
 const mapStationsRoutes = require("./routes/mapStations"); // Import the new route
+const loginRoutes = require("./routes/login");
+const logoutRoutes = require("./routes/logout");
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use("/api", resetPassesRoutes);
 app.use("/api", addPassesRoutes);
 app.use("/api", operatorsRouter); 
 app.use("/api", mapStationsRoutes);
+app.use("/api", loginRoutes);
+app.use("/api", logoutRoutes);
 
 // Default route
 app.get('/', (req, res) => {
