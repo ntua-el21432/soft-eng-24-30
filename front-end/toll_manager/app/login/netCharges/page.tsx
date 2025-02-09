@@ -32,7 +32,7 @@ export default function NetChargesCalculator() {
   const [error, setError] = useState<string | null>(null);
   const [operators, setOperators] = useState<TollCompany[]>([]);
 
-  // Ανάκτηση των operators από το API
+  // Fetch operators from the API
   useEffect(() => {
     const fetchOperators = async () => {
       try {
@@ -40,7 +40,7 @@ export default function NetChargesCalculator() {
         setOperators(response.data);
       } catch (err) {
         console.error("Error fetching operators:", err);
-        setError("Σφάλμα στην ανάκτηση των operators.");
+        setError("Error fetching operators.");
       }
     };
     fetchOperators();
@@ -48,45 +48,45 @@ export default function NetChargesCalculator() {
 
   const fetchNetCharges = async () => {
     try {
-      // Καθαρίζουμε προηγούμενα μηνύματα/αποτελέσματα
+      // Clear previous messages/results
       setError(null);
       setResult(null);
 
       if (!tollOpID1 || !tollOpID2 || !dateFrom || !dateTo) {
-        setError("Παρακαλώ συμπληρώστε όλα τα πεδία.");
+        setError("Please fill in all fields.");
         return;
       }
 
-      // Έλεγχος σειράς ημερομηνιών: δεν γίνεται αυτόματη αλλαγή (swap)
+      // Check date order: no automatic swap
       if (dateFrom > dateTo) {
-        setError("Η ημερομηνία 'From' πρέπει να είναι μικρότερη ή ίση με την ημερομηνία 'To'.");
+        setError("The 'From' date must be less than or equal to the 'To' date.");
         return;
       }
 
-      // Μετατροπή των ημερομηνιών σε μορφή YYYYMMDD χρησιμοποιώντας date-fns
+      // Convert dates to YYYYMMDD format using date-fns
       const formattedDateFrom = format(dateFrom, "yyyyMMdd");
       const formattedDateTo = format(dateTo, "yyyyMMdd");
 
       const url = `http://localhost:9115/api/netCharges/${tollOpID1}/${tollOpID2}/${formattedDateFrom}/${formattedDateTo}`;
       const response = await axios.get<NetChargesResponse>(url);
 
-      // Αν ο server επιστρέψει 204 (No Content)
+      // If the server returns 204 (No Content)
       if (response.status === 204) {
-        setError("Δεν βρέθηκαν συναλλαγές για το συγκεκριμένο διάστημα.");
+        setError("No transactions found for the specified period.");
         return;
       }
 
       setResult(response.data);
     } catch (err: any) {
       console.error("Error fetching net charges:", err.message);
-      setError("Σφάλμα στην ανάκτηση των δεδομένων. Ελέγξτε τα πεδία και δοκιμάστε ξανά.");
+      setError("Error fetching data. Please check the fields and try again.");
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-6">
       <div className="w-full max-w-2xl bg-gray-900 p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-center mb-6">Net Charges Calculator</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Net Charges with Operators Calculator</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select
             value={tollOpID1}
@@ -175,8 +175,8 @@ export default function NetChargesCalculator() {
                 <strong>{result.periodTo}</strong>.
               </p>
             )}
-  </div>
-)}
+          </div>
+        )}
       </div>
     </div>
   );

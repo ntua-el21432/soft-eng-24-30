@@ -38,7 +38,7 @@ export default function PassesCostCalculator() {
         setOperators(response.data);
       } catch (err) {
         console.error("Error fetching operators:", err);
-        setError("Σφάλμα στην ανάκτηση των operators.");
+        setError("Error fetching operators.");
       }
     };
     fetchOperators();
@@ -50,12 +50,12 @@ export default function PassesCostCalculator() {
       setResult(null);
 
       if (!tollOpID || !tagOpID || !dateFrom || !dateTo) {
-        setError("Παρακαλώ συμπληρώστε όλα τα πεδία.");
+        setError("Please fill in all fields.");
         return;
       }
 
       if (dateFrom > dateTo) {
-        setError("Η ημερομηνία 'From' πρέπει να είναι μικρότερη ή ίση με την ημερομηνία 'To'.");
+        setError("The 'From' date must be less than or equal to the 'To' date.");
         return;
       }
 
@@ -66,14 +66,14 @@ export default function PassesCostCalculator() {
       const response = await axios.get<PassesCostResponse>(url);
 
       if (response.status === 204) {
-        setError("Δεν βρέθηκαν δεδομένα για το συγκεκριμένο διάστημα.");
+        setError("No data found for the specified period.");
         return;
       }
 
       setResult(response.data);
     } catch (err: any) {
       console.error("Error fetching passes cost:", err.message);
-      setError("Σφάλμα στην ανάκτηση των δεδομένων. Ελέγξτε τα πεδία και δοκιμάστε ξανά.");
+      setError("Error fetching data. Please check the fields and try again.");
     }
   };
 

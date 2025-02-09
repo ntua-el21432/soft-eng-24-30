@@ -45,7 +45,7 @@ export default function PassAnalysisCalculator() {
         setOperators(response.data);
       } catch (err) {
         console.error("Error fetching operators:", err);
-        setError("Σφάλμα στην ανάκτηση των operators.");
+        setError("Error fetching operators.");
       }
     };
     fetchOperators();
@@ -57,12 +57,12 @@ export default function PassAnalysisCalculator() {
       setResult(null);
 
       if (!stationOpID || !tagOpID || !dateFrom || !dateTo) {
-        setError("Παρακαλώ συμπληρώστε όλα τα πεδία.");
+        setError("Please fill in all fields.");
         return;
       }
 
       if (dateFrom > dateTo) {
-        setError("Η ημερομηνία 'From' πρέπει να είναι μικρότερη ή ίση με την ημερομηνία 'To'.");
+        setError("The 'From' date must be less than or equal to the 'To' date.");
         return;
       }
 
@@ -73,14 +73,14 @@ export default function PassAnalysisCalculator() {
       const response = await axios.get<PassAnalysisResponse>(url);
 
       if (response.status === 204) {
-        setError("Δεν βρέθηκαν δεδομένα για το συγκεκριμένο διάστημα.");
+        setError("No data found for the specified period.");
         return;
       }
 
       setResult(response.data);
     } catch (err: any) {
       console.error("Error fetching pass analysis:", err.message);
-      setError("Σφάλμα στην ανάκτηση των δεδομένων. Ελέγξτε τα πεδία και δοκιμάστε ξανά.");
+      setError("Error fetching data. Please check the fields and try again.");
     }
   };
 
@@ -99,7 +99,7 @@ export default function PassAnalysisCalculator() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-6">
       <div className="w-full max-w-2xl bg-gray-900 p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-center mb-6">Pass Analysis Calculator</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Pass Analysis</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select
             value={stationOpID}
