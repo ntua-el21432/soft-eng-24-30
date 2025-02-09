@@ -214,69 +214,92 @@ program
   }
 });
 
-// 🚦 Admin Command: Parent Command
-const admin = program.command("admin").description("Admin commands for toll management");
+// ✅ End MySQL pool connection at the end
+const closeDB = async () => {
+  await db.end();
+  process.exit(0);
+};
 
-// 📌 **Subcommand: Create User (`usermod`)**
-admin
-  .command("usermod")
-  .description("Create a new user")
+// 🚦 Admin Command with Options (`--usermod`, `--addpasses`, `--users`)
+program
+  .command("admin")
+  .description("Admin commands for toll management")
+  .option("--usermod", "Create a new user")
+  .option("--addpasses", "Import passes from a CSV file")
+  .option("--users", "List all registered users")
   .option("--username <username>", "Username for the new user")
   .option("--passw <password>", "Password for the new user")
-  .action(async (options) => {
-    if (!options.username || !options.passw) {
-      console.error(chalk.red("❌ Error: Username and password are required."));
-      process.exit(1);
-    }
-
-    try {
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(options.passw, 10);
-
-      // Insert new user directly into MySQL
-      const [result] = await db.query(
-        "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-        [options.username, hashedPassword]
-      );
-
-      console.log(chalk.greenBright(`✅ User '${options.username}' created successfully (ID: ${result.insertId})`));
-      process.exit(0);
-    } catch (error) {
-      if (error.code === "ER_DUP_ENTRY") {
-        console.error(chalk.red("❌ Error: Username already exists."));
-      } else {
-        console.error(chalk.red("❌ Database Error:"), error);
-      }
-      process.exit(1);
-    }
-  });
-
-// 📌 **Subcommand: Import Passes (`addpasses`)**
-admin
-  .command("addpasses")
-  .description("Import passes from a CSV file")
   .option("--source <filePath>", "Path to the passes CSV file (default: ./passes-sample.csv)", "./passes-sample.csv")
-  .option("--format <format>", "Output format (json/csv)", process.env.DEFAULT_FORMAT || "json")
+  .option("--format <format>", "Output format (json/csv), default: csv", "csv")
   .action(async (options) => {
     try {
-      console.log(chalk.blueBright(`🚀 Importing passes from: ${options.source}...`));
+      const connection = await db.getConnection();
 
-      const formData = new FormData();
-      formData.append("file", fs.createReadStream(options.source));
+      // ✅ Handle `--usermod` (User Creation)
+      if (options.usermod) {
+        if (!options.username || !options.passw) {
+          console.error(chalk.red("❌ Error: Username and password are required."));
+          process.exit(1);
+        }
 
-      const response = await axios.post(`${BASE_URL}/admin/addpasses?format=${options.format}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+        const hashedPassword = await bcrypt.hash(options.passw, 10);
 
-      if (options.format === "csv") {
-        console.log(chalk.greenBright("✅ Passes imported successfully. CSV Output:"));
-        console.log(response.data);
-      } else {
-        console.log(chalk.greenBright("✅ Passes imported successfully."));
-        console.table(response.data.data);
+        try {
+          const [result] = await connection.query(
+            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+            [options.username, hashedPassword]
+          );
+          console.log(chalk.greenBright(`✅ User '${options.username}' created successfully (ID: ${result.insertId})`));
+        } catch (error) {
+          if (error.code === "ER_DUP_ENTRY") {
+            console.error(chalk.red("❌ Error: Username already exists."));
+          } else {
+            console.error(chalk.red("❌ Database Error:"), error);
+          }
+        }
       }
+
+      // ✅ Handle `--addpasses` (Pass Import)
+      if (options.addpasses) {
+        console.log(chalk.blueBright(`🚀 Importing passes from: ${options.source}...`));
+
+        const formData = new FormData();
+        formData.append("file", fs.createReadStream(options.source));
+
+        const response = await axios.post(`${BASE_URL}/admin/addpasses?format=${options.format}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (options.format === "csv") {
+          console.log(chalk.greenBright("✅ Passes imported successfully. CSV Output:"));
+          console.log(response.data);
+        } else {
+          console.log(chalk.greenBright("✅ Passes imported successfully."));
+          console.table(response.data.data);
+        }
+      }
+
+      // ✅ Handle `--users` (List All Users)
+      if (options.users) {
+        try {
+          const [users] = await connection.query("SELECT username FROM users");
+          if (users.length === 0) {
+            console.log(chalk.yellow("⚠️ No users found in the database."));
+          } else {
+            console.log(chalk.greenBright("📜 Registered Users:"));
+            users.forEach((user, index) => console.log(`${index + 1}. ${user.username}`));
+          }
+        } catch (error) {
+          console.error(chalk.red("❌ Database Error:"), error);
+        }
+      }
+
+      // ✅ Close the MySQL connection pool after execution
+      connection.release();
+      await closeDB();
     } catch (error) {
-      console.error(chalk.red("❌ Error importing passes:"), error.message);
+      console.error(chalk.red("❌ Unexpected Error:"), error);
+      process.exit(1);
     }
   });
 
