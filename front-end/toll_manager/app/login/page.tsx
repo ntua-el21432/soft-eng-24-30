@@ -108,6 +108,18 @@ export default function Login() {
               >
                 Calculate passesCost
               </button>
+
+              <button
+                onClick={() => router.push("/login/passAnalysis")}
+                className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
+                           transition-colors flex items-center justify-start pl-2 
+                           bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
+                           hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
+                           hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              >
+                Go to Pass Analysis
+              </button>
+
             </div>
           </div>
         )}

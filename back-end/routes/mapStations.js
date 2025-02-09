@@ -10,7 +10,7 @@ router.get("/mapStations", async (req, res) => {
 
     try {
         const [results] = await pool.query(
-            `SELECT station_id, company_id, latitude, longitude 
+            `SELECT station_id, company_id, latitude, longitude , station_name , road , locality , price1 , price2 , price3 , price4
              FROM tollstations 
              ORDER BY station_id ASC`
         );
@@ -24,6 +24,13 @@ router.get("/mapStations", async (req, res) => {
         const response = results.map(row => ({
             stationID: row.station_id,
             companyID: row.company_id,
+            stationName: row.station_name,
+            stationRoad: row.road,
+            stationLocality: row.locality,
+            stationPriceCar: row.price2,
+            stationPriceBike: row.price1,
+            stationPriceTruck: row.price3,
+            stationPriceBus: row.price4,
             location: { lat: parseFloat(row.latitude), lng: parseFloat(row.longitude) }
         }));
 
@@ -52,7 +59,7 @@ router.get("/mapStations/:operatorID?", async (req, res) => {
     
     try {
         const [results] = await pool.query(
-            `SELECT station_id, company_id, latitude, longitude 
+            `SELECT station_id, company_id, latitude, longitude , station_name , road , locality , price1 , price2 , price3 , price4
              FROM tollstations 
              WHERE company_id = ? 
              ORDER BY station_id ASC`,
@@ -66,6 +73,13 @@ router.get("/mapStations/:operatorID?", async (req, res) => {
         const response = results.map(row => ({
             stationID: row.station_id,
             companyID: row.company_id,
+            stationName: row.station_name,
+            stationRoad: row.road,
+            stationLocality: row.locality,
+            stationPriceCar: row.price2,
+            stationPriceBike: row.price1,
+            stationPriceTruck: row.price3,
+            stationPriceBus: row.price4,
             location: { lat: parseFloat(row.latitude), lng: parseFloat(row.longitude) }
         }));
 

@@ -36,6 +36,13 @@ interface Station {
     lat: number;
     lng: number;
   };
+  stationName: string;
+  stationRoad: string;
+  stationLocality: string;
+  stationPriceCar: number;
+  stationPriceTruck: number;
+  stationPriceBus: number;
+  stationPriceBike: number;
 }
 
 interface Operator {
@@ -133,8 +140,14 @@ export default function MapPage() {
             position={[station.location.lat, station.location.lng]}
           >
             <Popup>
-              Station ID: {station.stationID} <br />
-              Company ID: {station.companyID}
+              Company Name : {operators.find(op => op.company_id === station.companyID)?.company_name || "Unknown"} <br />
+              Station Name: {station.stationName} <br />
+              Station Road: {station.stationRoad} <br />
+              Station Locality: {station.stationLocality} <br />
+              Price Bike : {station.stationPriceBike} €<br />
+              Price Car : {station.stationPriceCar} €<br />
+              Price Truck : {station.stationPriceTruck} €<br />
+              Price Bus : {station.stationPriceBus} €<br />
             </Popup>
           </Marker>
         ))}
