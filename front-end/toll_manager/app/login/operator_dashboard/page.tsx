@@ -93,7 +93,7 @@ export default function NetChargesCalculator() {
             className="p-3 bg-gray-800 text-white rounded"
           >
             <option value="" disabled>
-              Select Operator 1
+              Select your Operator
             </option>
             {operators.map((op) => (
               <option key={op.company_id} value={op.company_id}>
@@ -108,7 +108,7 @@ export default function NetChargesCalculator() {
             className="p-3 bg-gray-800 text-white rounded"
           >
             <option value="" disabled>
-              Select Operator 2
+              Select Operator to calculate
             </option>
             {operators.map((op) => (
               <option key={op.company_id} value={op.company_id}>
