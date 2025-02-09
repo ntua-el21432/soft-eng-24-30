@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
 interface NetChargesResponse {
   tollOpID1: string;
@@ -22,12 +25,13 @@ interface TollCompany {
 export default function NetChargesCalculator() {
   const [tollOpID1, setTollOpID1] = useState("");
   const [tollOpID2, setTollOpID2] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | null>(null);
+  const [dateTo, setDateTo] = useState<Date | null>(null);
   const [result, setResult] = useState<NetChargesResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [operators, setOperators] = useState<TollCompany[]>([]);
 
+  // Ανάκτηση των operators από το API
   useEffect(() => {
     const fetchOperators = async () => {
       try {
@@ -35,6 +39,7 @@ export default function NetChargesCalculator() {
         setOperators(response.data);
       } catch (err) {
         console.error("Error fetching operators:", err);
+        setError("Σφάλμα στην ανάκτηση των operators.");
       }
     };
     fetchOperators();
@@ -42,22 +47,38 @@ export default function NetChargesCalculator() {
 
   const fetchNetCharges = async () => {
     try {
+      // Καθαρίζουμε προηγούμενα μηνύματα/αποτελέσματα
       setError(null);
       setResult(null);
 
-      // Μετατροπή ημερομηνιών
-      const formattedDateFrom = dateFrom.replace(/-/g, "");
-      const formattedDateTo = dateTo.replace(/-/g, "");
+      if (!tollOpID1 || !tollOpID2 || !dateFrom || !dateTo) {
+        setError("Παρακαλώ συμπληρώστε όλα τα πεδία.");
+        return;
+      }
 
-      const response = await axios.get<NetChargesResponse>(
-        `http://localhost:9115/api/netCharges/${tollOpID1}/${tollOpID2}/${formattedDateFrom}/${formattedDateTo}`
-      );
+      // Έλεγχος σειράς ημερομηνιών: δεν γίνεται αυτόματη αλλαγή (swap)
+      if (dateFrom > dateTo) {
+        setError("Η ημερομηνία 'From' πρέπει να είναι μικρότερη ή ίση με την ημερομηνία 'To'.");
+        return;
+      }
 
-      console.log("API Response:", response.data);
+      // Μετατροπή των ημερομηνιών σε μορφή YYYYMMDD χρησιμοποιώντας date-fns
+      const formattedDateFrom = format(dateFrom, "yyyyMMdd");
+      const formattedDateTo = format(dateTo, "yyyyMMdd");
+
+      const url = `http://localhost:9115/api/netCharges/${tollOpID1}/${tollOpID2}/${formattedDateFrom}/${formattedDateTo}`;
+      const response = await axios.get<NetChargesResponse>(url);
+
+      // Αν ο server επιστρέψει 204 (No Content)
+      if (response.status === 204) {
+        setError("Δεν βρέθηκαν συναλλαγές για το συγκεκριμένο διάστημα.");
+        return;
+      }
+
       setResult(response.data);
     } catch (err: any) {
       console.error("Error fetching net charges:", err.message);
-      setError("Error fetching data. Please check inputs and try again.");
+      setError("Σφάλμα στην ανάκτηση των δεδομένων. Ελέγξτε τα πεδία και δοκιμάστε ξανά.");
     }
   };
 
@@ -98,27 +119,29 @@ export default function NetChargesCalculator() {
 
           <div className="flex flex-col">
             <label htmlFor="dateFrom" className="text-sm mb-1">
-              Select Date From
+              Select Date From (YYYYMMDD)
             </label>
-            <input
-              type="date"
+            <DatePicker
               id="dateFrom"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="p-3 bg-gray-800 text-white rounded"
+              selected={dateFrom}
+              onChange={(date: Date | null) => setDateFrom(date)}
+              dateFormat="yyyyMMdd"
+              placeholderText="YYYYMMDD"
+              className="p-3 bg-gray-800 text-white rounded w-full"
             />
           </div>
 
           <div className="flex flex-col">
             <label htmlFor="dateTo" className="text-sm mb-1">
-              Select Date To
+              Select Date To (YYYYMMDD)
             </label>
-            <input
-              type="date"
+            <DatePicker
               id="dateTo"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="p-3 bg-gray-800 text-white rounded"
+              selected={dateTo}
+              onChange={(date: Date | null) => setDateTo(date)}
+              dateFormat="yyyyMMdd"
+              placeholderText="YYYYMMDD"
+              className="p-3 bg-gray-800 text-white rounded w-full"
             />
           </div>
         </div>
@@ -135,7 +158,8 @@ export default function NetChargesCalculator() {
         {result && (
           <div className="mt-6 p-4 bg-gray-800 rounded">
             <p>
-              Net revenue with <strong>{tollOpID1}</strong> during the period{" "}
+              Net revenue between <strong>{result.tollOpID1}</strong> and{" "}
+              <strong>{result.tollOpID2}</strong> during the period{" "}
               <strong>{result.periodFrom}</strong> until <strong>{result.periodTo}</strong> is:{" "}
               <strong>{result.netCharges} €</strong>
             </p>
