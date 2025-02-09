@@ -92,20 +92,23 @@ export default function TollStationPasses() {
       <div className="w-full max-w-3xl bg-gray-900 p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center mb-6">Toll Station Passes</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <select
-            value={tollStationID}
-            onChange={(e) => setTollStationID(e.target.value)}
-            className="p-3 bg-gray-800 text-white rounded"
-          >
-            <option value="" disabled>
-              Select Toll Station
-            </option>
-            {stations.map((station) => (
-              <option key={station.station_id} value={station.station_id}>
-                {station.station_name}
+          <div className="flex flex-col sm:col-span-2">
+            <label className="text-sm mb-1">Select Toll Station</label>
+            <select
+              value={tollStationID}
+              onChange={(e) => setTollStationID(e.target.value)}
+              className="p-3 bg-gray-800 text-white rounded w-full"
+            >
+              <option value="" disabled>
+                Select Toll Station
               </option>
-            ))}
-          </select>
+              {stations.map((station) => (
+                <option key={station.station_id} value={station.station_id}>
+                  {station.station_name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex flex-col">
             <label htmlFor="dateFrom" className="text-sm mb-1">
