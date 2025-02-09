@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -40,46 +41,69 @@ export default function Login() {
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <h1 className="text-4xl font-bold">Login</h1>
-
+    <div className="flex flex-col items-center justify-start min-h-screen p-2 pb-2 sm:p-5 font-[family-name:var(--font-geist-sans)]">
+      <main className="w-full max-w-4xl">
         {/* ✅ Show login form only if NOT logged in */}
         {!isLoggedIn ? (
-          <form className="flex flex-col gap-4" onSubmit={handleLogin}>
-            <input
-              type="text"
-              placeholder="Username"
-              className="p-2 border border-gray-300 rounded text-black"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="p-2 border border-gray-300 rounded text-black"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            >
-              Login
-            </button>
-          </form>
+          <>
+            <h1 className="text-4xl font-bold text-center mb-8">Login</h1>
+            <form className="flex flex-col gap-4 items-center" onSubmit={handleLogin}>
+              <input
+          type="text"
+          placeholder="Username"
+          className="p-2 border border-gray-300 rounded text-black w-80"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+              />
+              <input
+          type="password"
+          placeholder="Password"
+          className="p-2 border border-gray-300 rounded text-black w-80"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+          type="submit"
+          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              >
+          Login
+              </button>
+            </form>
+          </>
         ) : (
-          // ✅ Show "Enter as Operator" button ONLY after successful login
-          <button
-            onClick={() => router.push("/login/operator_dashboard")}
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-          >
-            Enter as Operator
-          </button>
-        )}
+          <div className="flex flex-col items-center w-full">
+            <h1 className="text-4xl font-bold text-center w-full mb-16">
+              Welcome to Toll Manager
+            </h1>
+            <div className="w-full flex flex-col items-start pl-10 gap-4">
+            <button
+  onClick={() => router.push("/login/netCharges")}
+  className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
+             transition-colors flex items-center justify-start pl-2 
+             bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
+             hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
+             hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+>
+  Calculate Net Charges
+</button>
 
-        {error && <p className="text-red-500">{error}</p>}
+<button
+  onClick={() => router.push("/login/tollStationPasses")}
+  className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
+             transition-colors flex items-center justify-start pl-2 
+             bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
+             hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
+             hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+>
+  View Toll Station Passes
+</button>
+
+            </div>
+            </div>
+          )}
+  
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </main>
     </div>
-  );
+  );  
 }

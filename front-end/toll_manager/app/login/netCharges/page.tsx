@@ -157,15 +157,26 @@ export default function NetChargesCalculator() {
         {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
 
         {result && (
-          <div className="mt-6 p-4 bg-gray-800 rounded">
-            <p>
-              Net revenue between <strong>{result.tollOpID1}</strong> and{" "}
-              <strong>{result.tollOpID2}</strong> during the period{" "}
-              <strong>{result.periodFrom}</strong> until <strong>{result.periodTo}</strong> is:{" "}
-              <strong>{result.netCharges} €</strong>
-            </p>
-          </div>
-        )}
+          <div className="mt-6 p-4 bg-gray-800 rounded text-center">
+            {result.netCharges < 0 ? (
+              <p>
+                Your Operator <strong>{result.tollOpID1}</strong> owes{" "}
+                <strong>{result.tollOpID2}</strong> the amount{" "}
+                <strong>{Math.abs(result.netCharges)} €</strong> in the period from{" "}
+                <strong>{result.periodFrom}</strong> until{" "}
+                <strong>{result.periodTo}</strong>.
+              </p>
+            ) : (
+              <p>
+                The Operator <strong>{result.tollOpID2}</strong> owes your company{" "}
+                <strong>{result.tollOpID1}</strong> the amount{" "}
+                <strong>{Math.abs(result.netCharges)} €</strong> in the period from{" "}
+                <strong>{result.periodFrom}</strong> until{" "}
+                <strong>{result.periodTo}</strong>.
+              </p>
+            )}
+  </div>
+)}
       </div>
     </div>
   );

@@ -17,6 +17,7 @@ const operatorsRouter = require("./routes/operators");
 const mapStationsRoutes = require("./routes/mapStations"); // Import the new route
 const loginRoutes = require("./routes/login");
 const logoutRoutes = require("./routes/logout");
+const tollStationRoutes = require("./routes/tollStations");
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/api", operatorsRouter);
 app.use("/api", mapStationsRoutes);
 app.use("/api", loginRoutes);
 app.use("/api", logoutRoutes);
+app.use("/api", tollStationRoutes);
 
 // Default route
 app.get('/', (req, res) => {
