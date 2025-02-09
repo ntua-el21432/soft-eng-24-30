@@ -7,6 +7,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // ✅ Track login status
   const router = useRouter(); // To redirect after login
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -30,8 +31,9 @@ export default function Login() {
       // ✅ Save the token in localStorage or cookies
       localStorage.setItem("authToken", data.token);
 
-      // ✅ Redirect to operator dashboard
-      router.push("/login/operator_dashboard");
+      // ✅ Set login state to true
+      setIsLoggedIn(true);
+
     } catch (err: any) {
       setError(err.message);
     }
@@ -41,38 +43,42 @@ export default function Login() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="text-4xl font-bold">Login</h1>
-        
-        <form className="flex flex-col gap-4" onSubmit={handleLogin}>
-          <input
-            type="text"
-            placeholder="Username"
-            className="p-2 border border-gray-300 rounded text-black"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="p-2 border border-gray-300 rounded text-black"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+
+        {/* ✅ Show login form only if NOT logged in */}
+        {!isLoggedIn ? (
+          <form className="flex flex-col gap-4" onSubmit={handleLogin}>
+            <input
+              type="text"
+              placeholder="Username"
+              className="p-2 border border-gray-300 rounded text-black"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="p-2 border border-gray-300 rounded text-black"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+            >
+              Login
+            </button>
+          </form>
+        ) : (
+          // ✅ Show "Enter as Operator" button ONLY after successful login
           <button
-            type="submit"
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+            onClick={() => router.push("/login/operator_dashboard")}
+            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
           >
-            Login
+            Enter as Operator
           </button>
-        </form>
+        )}
 
         {error && <p className="text-red-500">{error}</p>}
-
-        <button
-          onClick={() => router.push("/login/operator_dashboard")}
-          className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-        >
-          Enter as Operator
-        </button>
       </main>
     </div>
   );
