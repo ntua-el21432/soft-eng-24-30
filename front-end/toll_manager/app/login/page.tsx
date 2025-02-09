@@ -49,24 +49,24 @@ export default function Login() {
             <h1 className="text-4xl font-bold text-center mb-8">Login</h1>
             <form className="flex flex-col gap-4 items-center" onSubmit={handleLogin}>
               <input
-          type="text"
-          placeholder="Username"
-          className="p-2 border border-gray-300 rounded text-black w-80"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+                type="text"
+                placeholder="Username"
+                className="p-2 border border-gray-300 rounded text-black w-80"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
               <input
-          type="password"
-          placeholder="Password"
-          className="p-2 border border-gray-300 rounded text-black w-80"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                placeholder="Password"
+                className="p-2 border border-gray-300 rounded text-black w-80"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
-          type="submit"
-          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                type="submit"
+                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
               >
-          Login
+                Login
               </button>
             </form>
           </>
@@ -76,32 +76,41 @@ export default function Login() {
               Welcome to Toll Manager
             </h1>
             <div className="w-full flex flex-col items-start pl-10 gap-4">
-            <button
-  onClick={() => router.push("/login/netCharges")}
-  className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
-             transition-colors flex items-center justify-start pl-2 
-             bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
-             hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
-             hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
->
-  Calculate Net Charges
-</button>
+              <button
+                onClick={() => router.push("/login/netCharges")}
+                className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
+                           transition-colors flex items-center justify-start pl-2 
+                           bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
+                           hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
+                           hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              >
+                Calculate Net Charges
+              </button>
 
-<button
-  onClick={() => router.push("/login/tollStationPasses")}
-  className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
-             transition-colors flex items-center justify-start pl-2 
-             bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
-             hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
-             hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
->
-  View Toll Station Passes
-</button>
+              <button
+                onClick={() => router.push("/login/tollStationPasses")}
+                className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
+                           transition-colors flex items-center justify-start pl-2 
+                           bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
+                           hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
+                           hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              >
+                View Toll Station Passes
+              </button>
 
+              <button
+                onClick={() => router.push("/login/passesCost")}
+                className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] 
+                           transition-colors flex items-center justify-start pl-2 
+                           bg-white text-black dark:bg-[#1a1a1a] dark:text-white 
+                           hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] 
+                           hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              >
+                Calculate passesCost
+              </button>
             </div>
-            </div>
-          )}
-  
+          </div>
+        )}
         {error && <p className="text-red-500 text-center">{error}</p>}
       </main>
     </div>
