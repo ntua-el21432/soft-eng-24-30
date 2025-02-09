@@ -46,14 +46,14 @@ export default function Login() {
           <input
             type="text"
             placeholder="Username"
-            className="p-2 border border-gray-300 rounded"
+            className="p-2 border border-gray-300 rounded text-black"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <input
             type="password"
             placeholder="Password"
-            className="p-2 border border-gray-300 rounded"
+            className="p-2 border border-gray-300 rounded text-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
