@@ -10,7 +10,7 @@ router.post("/admin/addpasses", async (req, res) => {
         console.log("🚀 Starting import of passes data...");
 
         // **1. Έλεγχος αν υπάρχει το CSV αρχείο**
-        const filePath = "passes-sample.csv";
+        const filePath = "passes30.csv";
         if (!fs.existsSync(filePath)) {
             console.error("❌ CSV file not found.");
             return res.status(400).json({ status: "failed", info: "CSV file not found." });
@@ -100,7 +100,7 @@ router.post("/admin/addpasses", async (req, res) => {
                         const json2csvParser = new Parser();
                         const csvData = json2csvParser.parse(passesData);
                         res.header("Content-Type", "text/csv");
-                        res.attachment("passes-data.csv");
+                        res.attachment("passes30.csv");
                         return res.send(csvData);
                     }
 
