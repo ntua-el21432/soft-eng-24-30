@@ -44,15 +44,27 @@ export default function TollStationPasses() {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await axios.get("http://localhost:9115/api/tollstations");
+        const token = localStorage.getItem("authToken"); // ✅ Get auth token
+        if (!token) {
+          setError("Unauthorized: Please log in.");
+          return;
+        }
+  
+        const response = await axios.get("http://localhost:9115/api/stations", { // ✅ Corrected API path
+          headers: {
+            "X-OBSERVATORY-AUTH": token, // ✅ Attach token for authentication
+          },
+        });
+  
         setStations(response.data);
       } catch (err) {
         console.error("Error fetching stations:", err);
-        setError("Error fetching toll stations.");
+        setError("Failed to fetch toll stations. Ensure the server is running and the token is valid.");
       }
     };
     fetchStations();
   }, []);
+  
 
   const fetchPasses = async () => {
     try {
