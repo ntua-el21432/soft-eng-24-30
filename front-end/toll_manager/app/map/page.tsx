@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"; // Mark this component as a Client Component
 
 import { useEffect, useState } from "react";
@@ -110,12 +111,13 @@ export default function MapPage() {
 
   return (
     <div style={{ height: "100vh", width: "100%" }}>
-      <div style={{ padding: "10px", backgroundColor: "#f0f0f0" }}>
+      <div style={{ padding: "10px", backgroundColor: "#000000" }}>
         <label htmlFor="operator-select">Select Operator: </label>
         <select
           id="operator-select"
           value={selectedCompanyID}
           onChange={(e) => setSelectedCompanyID(e.target.value)}
+          style={{ color: "black" }}
         >
           <option value="">All Operators</option>
           {operators.map((operator) => (
