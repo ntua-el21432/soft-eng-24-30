@@ -48,40 +48,42 @@ export default function NetChargesCalculator() {
 
   const fetchNetCharges = async () => {
     try {
-      // Clear previous messages/results
-      setError(null);
-      setResult(null);
+        setError(null);
+        setResult(null);
 
-      if (!tollOpID1 || !tollOpID2 || !dateFrom || !dateTo) {
-        setError("Please fill in all fields.");
-        return;
-      }
+        if (!tollOpID1 || !tollOpID2 || !dateFrom || !dateTo) {
+            setError("Please fill in all fields.");
+            return;
+        }
 
-      // Check date order: no automatic swap
-      if (dateFrom > dateTo) {
-        setError("The 'From' date must be less than or equal to the 'To' date.");
-        return;
-      }
+        if (dateFrom > dateTo) {
+            setError("The 'From' date must be before or equal to the 'To' date.");
+            return;
+        }
 
-      // Convert dates to YYYYMMDD format using date-fns
-      const formattedDateFrom = format(dateFrom, "yyyyMMdd");
-      const formattedDateTo = format(dateTo, "yyyyMMdd");
+        const formattedDateFrom = format(dateFrom, "yyyyMMdd");
+        const formattedDateTo = format(dateTo, "yyyyMMdd");
 
-      const url = `http://localhost:9115/api/netCharges/${tollOpID1}/${tollOpID2}/${formattedDateFrom}/${formattedDateTo}`;
-      const response = await axios.get<NetChargesResponse>(url);
+        const token = localStorage.getItem("authToken"); // ✅ Get the auth token
 
-      // If the server returns 204 (No Content)
-      if (response.status === 204) {
-        setError("No transactions found for the specified period.");
-        return;
-      }
+        const url = `http://localhost:9115/api/netCharges/${tollOpID1}/${tollOpID2}/${formattedDateFrom}/${formattedDateTo}`;
+        const response = await axios.get(url, {
+            headers: {
+                "X-OBSERVATORY-AUTH": token, // ✅ Send token in request
+            }
+        });
 
-      setResult(response.data);
+        if (response.status === 204) {
+            setError("No pass records found for this period.");
+            return;
+        }
+
+        setResult(response.data);
     } catch (err: any) {
-      console.error("Error fetching net charges:", err.message);
-      setError("Error fetching data. Please check the fields and try again.");
+        console.error("Error fetching net charges:", err.message);
+        setError("Unauthorized: Please login again.");
     }
-  };
+};
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-6">

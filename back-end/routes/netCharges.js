@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../utils/db.config");
 const { Parser } = require("json2csv");
+const verifyToken = require("../middleware/authMiddleware"); // ✅ Import auth middleware
 
 // GET /netCharges/:tollOpID1?/:tollOpID2?/:date_from?/:date_to?
-router.get("/netCharges/:tollOpID1?/:tollOpID2?/:date_from?/:date_to?", async (req, res) => {
+router.get("/netCharges/:tollOpID1?/:tollOpID2?/:date_from?/:date_to?", verifyToken, async (req, res) => {
     const { tollOpID1, tollOpID2, date_from, date_to } = req.params;
     const { format } = req.query;
     const requestTimestamp = new Date().toISOString();
