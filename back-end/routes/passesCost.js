@@ -25,6 +25,16 @@ router.get("/passesCost/:tollOpID?/:tagOpID?/:date_from?/:date_to?", async (req,
     const endDate = `${date_to.substring(0, 4)}-${date_to.substring(4, 6)}-${date_to.substring(6, 8)} 23:59:59`;
 
     try {
+        // Validate tollOpID
+        const [tollOpCheck] = await pool.query(
+            `SELECT company_id FROM tollstations WHERE company_id = ?`,
+            [tollOpID]
+        );
+
+        // If tollOpID is invalid, return 404 Not Found
+        if (tollOpCheck.length === 0) {
+            return res.status(404).json({ error: "Not Found", message: "Toll operator ID is invalid." });
+        }
         const [results] = await pool.query(
             `SELECT COUNT(*) AS nPasses, SUM(p.charge) AS passesCost
              FROM passes p

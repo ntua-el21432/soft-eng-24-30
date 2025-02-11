@@ -50,9 +50,14 @@ app.use("/api", loginRoutes);
 app.use("/api", logoutRoutes);
 app.use("/api", stationRoutes);
 
+
 // Default route
 app.get('/', (req, res) => {
     res.send("Hello World! This is the back-end server.");
+});
+// Catch-all route for invalid API endpoints
+app.use((req, res) => {
+    res.status(404).json({ error: "Not Found", message: "The requested resource was not found." });
 });
 
 module.exports = app; // Σωστό export του app για χρήση από το server.js

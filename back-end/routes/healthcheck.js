@@ -8,10 +8,7 @@ router.get("/admin/healthcheck", async (req, res) => {
     ? `mysql://${process.env.DB_USER}:${process.env.DB_PASS || ''}@${process.env.DB_HOST}/${process.env.DB_NAME}`
     : "Not Available";
 
-  
    //console.log("DB Connection Details:", process.env.DB_HOST, process.env.DB_USER, process.env.DB_NAME);
-
-
     try {
         // Έλεγχος σύνδεσης με τη βάση δεδομένων
         const [stations] = await pool.query("SELECT COUNT(*) AS n_stations FROM tollstations");
@@ -37,6 +34,11 @@ router.get("/admin/healthcheck", async (req, res) => {
             dbconnection: dbConnectionString
         });
     }
+});
+
+// Reject POST requests to /admin/healthcheck
+router.post("/admin/healthcheck", (req, res) => {
+    res.status(405).json({ error: "Method Not Allowed", message: "This endpoint only supports GET requests." });
 });
 
 module.exports = router;
