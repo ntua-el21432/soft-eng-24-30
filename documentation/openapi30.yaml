@@ -1,0 +1,306 @@
+openapi: 3.0.0
+info:
+  title: TL2430 - Toll Manager API
+  description: API documentation for the Toll Manager project
+  contact:
+    name: TL2430 Team
+    email: el21912@mail.ntua.gr
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:9115/
+    description: Local Development Server
+
+paths:
+  /admin/healthcheck:
+    get:
+      description: Check end-to-end connectivity between client and database
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Not Authorized
+        '500':
+          description: Internal Server Error
+
+  /login:
+    post:
+      description: User authentication endpoint
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Not Authorized
+        '500':
+          description: Internal Server Error
+
+  /logout:
+    post:
+      description: User logout endpoint
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /admin/resetPasses:
+    post:
+      description: Reset the Passes table
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: Internal Server Error
+
+  /admin/resetStations:
+    post:
+      description: Reset the Stations table
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: Internal Server Error
+
+  /admin/addPasses:
+    post:
+      description: Import passes data from CSV file
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /tollStationPasses/{tollStationID}/{date_from}/{date_to}:
+    get:
+      description: Retrieve all passes for a given toll station in a date range
+      tags:
+        - Toll Stations
+      parameters:
+        - name: tollStationID
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /mapStations:
+    get:
+      description: Retrieve all toll stations with details
+      tags:
+        - Toll Stations
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No content
+        '500':
+          description: Internal Server Error
+
+  /operators:
+    get:
+      description: Retrieve list of toll operators
+      tags:
+        - Operators
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: Internal Server Error
+
+  /passAnalysis/{stationOpID}/{tagOpID}/{date_from}/{date_to}:
+    get:
+      description: Retrieve pass analysis between a station operator and a tag operator
+      tags:
+        - Analysis
+      parameters:
+        - name: stationOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tagOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /passesCost/{tollOpID}/{tagOpID}/{date_from}/{date_to}:
+    get:
+      description: Retrieve total passes and cost between an operator and a tag issuer
+      tags:
+        - Analysis
+      parameters:
+        - name: tollOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tagOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /chargesBy/{tollOpID}/{date_from}/{date_to}:
+    get:
+      description: Retrieve charges incurred by a specific operator
+      tags:
+        - Analysis
+      parameters:
+        - name: tollOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /netCharges/{tollOpID1}/{tollOpID2}/{date_from}/{date_to}:
+    get:
+      description: Retrieve net charges between two operators
+      tags:
+        - Analysis
+      parameters:
+        - name: tollOpID1
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tollOpID2
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /stations:
+    get:
+      description: Retrieve all toll stations
+      tags:
+        - Toll Stations
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No Content
+        '500':
+          description: Internal Server Error
+
