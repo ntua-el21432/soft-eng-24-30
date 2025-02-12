@@ -101,3 +101,5 @@ read -p "Press any key to resume ..."
 se2430 chargesby --opid KO --from 20220604 --to 20220615 --format csv
 read -p "Press any key to resume ..."
 se2430 chargesby --opid NO --from 20220604 --to 20220615 --format csv
+read -p "Press any key to resume ..."
+se2430 logout

@@ -21,8 +21,18 @@ program
   .description('CLI for Toll Manager')
   .version('1.0.0');
 
+// Allowed output formats
+const ALLOWED_FORMATS = ['json', 'csv'];
+
 // Helper function to get format (defaulting to ENV format)
-const getFormat = (optionFormat) => optionFormat || DEFAULT_FORMAT;
+const getFormat = (optionFormat) => {
+  const format = optionFormat?.toLowerCase();
+  if (!ALLOWED_FORMATS.includes(format)) {
+    console.warn(chalk.yellow(`⚠️ Warning: Unsupported format '${format}'. Using default '${DEFAULT_FORMAT}'.`));
+    return DEFAULT_FORMAT; // Fallback to default format
+  }
+  return format;
+};
 
 // ✅ Database Connection
 const db = mysql.createPool({
@@ -30,6 +40,25 @@ const db = mysql.createPool({
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "tollmanager",
+});
+
+// Handle unknown commands
+program
+  .command('*')
+  .description('Handle unknown commands')
+  .action((cmd) => {
+    console.error(chalk.red(`❌ Error: Unknown cli command '${cmd}'.`));
+    console.error(chalk.yellow('ℹ️ Use `se2430 --help` to see available commands.'));
+    process.exit(400); // Exit with status code 400 (Bad Parameter)
+  });
+
+// Ensure unknown options also trigger an error
+program.configureOutput({
+  writeErr: (str) => {
+    console.error(chalk.red(`❌ Error: ${str.trim()}. Returned status 400`));
+    console.error('Use `se2430 --help` to see available commands.');
+    process.exit(400);
+  }
 });
 
 // 🚦 1️⃣ Command: Retrieve pass data per toll station
