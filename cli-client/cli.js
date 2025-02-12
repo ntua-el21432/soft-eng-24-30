@@ -21,8 +21,18 @@ program
   .description('CLI for Toll Manager')
   .version('1.0.0');
 
+// Allowed output formats
+const ALLOWED_FORMATS = ['json', 'csv'];
+
 // Helper function to get format (defaulting to ENV format)
-const getFormat = (optionFormat) => optionFormat || DEFAULT_FORMAT;
+const getFormat = (optionFormat) => {
+  const format = optionFormat?.toLowerCase();
+  if (!ALLOWED_FORMATS.includes(format)) {
+    console.warn(chalk.yellow(`⚠️ Warning: Unsupported format '${format}'. Using default '${DEFAULT_FORMAT}'.`));
+    return DEFAULT_FORMAT; // Fallback to default format
+  }
+  return format;
+};
 
 // ✅ Database Connection
 const db = mysql.createPool({
