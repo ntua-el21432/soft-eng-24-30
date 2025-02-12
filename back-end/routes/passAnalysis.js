@@ -25,6 +25,17 @@ router.get("/passAnalysis/:stationOpID?/:tagOpID?/:date_from?/:date_to?", async 
     const endDate = `${date_to.substring(0, 4)}-${date_to.substring(4, 6)}-${date_to.substring(6, 8)} 23:59:59`;
 
     try {
+        // Validate stationOpID
+        const [stationOpCheck] = await pool.query(
+            `SELECT company_id FROM tollstations WHERE company_id = ?`,
+            [stationOpID]
+        );
+
+        // If stationOpID is invalid, return 404 Not Found
+        if (stationOpCheck.length === 0) {
+            return res.status(404).json({ error: "Not Found", message: "Station operator ID is invalid." });
+        }
+
         const [results] = await pool.query(
             `SELECT p.pass_id, p.timestamp, p.tag_id, p.charge, 
                     p.station_id,
