@@ -25,6 +25,15 @@ router.get("/chargesBy/:tollOpID?/:date_from?/:date_to?", async (req, res) => {
     const endDate = `${date_to.substring(0, 4)}-${date_to.substring(4, 6)}-${date_to.substring(6, 8)} 23:59:59`;
 
     try {
+
+        const[tollOpIDcheck]=await pool.query(
+            `SELECT * FROM tollcompanies WHERE company_id=?`,
+            [tollOpID]
+        )
+        if(tollOpIDcheck.length===0){
+            return res.status(400).json({ error: "Bad Request", message: "Wrong Input" });
+        }
+
         const [results] = await pool.query(
             `SELECT v.company_id AS visitingOpID, 
                     COUNT(*) AS nPasses, 
