@@ -31,9 +31,9 @@ router.get("/passAnalysis/:stationOpID?/:tagOpID?/:date_from?/:date_to?", async 
             [stationOpID]
         );
 
-        // If stationOpID is invalid, return 404 Not Found
+        // If stationOpID is invalid, return 400
         if (stationOpCheck.length === 0) {
-            return res.status(404).json({ error: "Not Found", message: "Station operator ID is invalid." });
+            return res.status(400).json({ error: "Bad Parameter", message: "Station operator ID is invalid." });
         }
 
         const [results] = await pool.query(

@@ -57,7 +57,7 @@ app.get('/', (req, res) => {
 });
 // Catch-all route for invalid API endpoints
 app.use((req, res) => {
-    res.status(404).json({ error: "Not Found", message: "The requested resource was not found." });
+    res.status(400).json({ error: "Bad Request", message: "The requested endpoint doesn't exist." });
 });
 
 module.exports = app; // Σωστό export του app για χρήση από το server.js

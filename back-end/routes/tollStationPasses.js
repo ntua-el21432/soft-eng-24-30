@@ -39,7 +39,7 @@ router.get("/tollStationPasses/:tollStationID?/:date_from?/:date_to?", async (re
 
         // If tollStationID is invalid, return 404 Not Found
         if (stationCheck.length === 0) {
-            return res.status(404).json({ error: "Not Found", message: "Toll station ID is invalid." });
+            return res.status(400).json({ error: "Bad Parameter", message: "Toll station ID is invalid." });
         }
 
         const [results] = await pool.query(
