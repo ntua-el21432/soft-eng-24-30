@@ -1,0 +1,23 @@
+{
+    "answers": {
+        "phase": "testing",
+        "action": "integration testing",
+        "scope": "github operations",
+        "action experience": 4,
+        "language": "n/a",
+        "other language": "<fill in>",
+        "aimodel": "chatgpt",
+        "aimodel version": "ChatGPT-4.0",
+        "open source aimodel": "<fill in>",
+        "tool option": "online full",
+        "experience with tool": 5,
+        "time allocated (h)": 0.5,
+        "time saved estimate (h)": 0.5, 
+        "quality of ai help": 4,
+        "knowledge acquired": 2,
+        "generic feeling - now": 4,
+        "generic feeling - future": 4,
+        "threat level": 3,
+        "notes": "We asked ChatGPT how we can clone our repo, to prepare for the presentation"
+    }
+}
