@@ -33,7 +33,17 @@ router.get("/passAnalysis/:stationOpID?/:tagOpID?/:date_from?/:date_to?", async 
 
         // If stationOpID is invalid, return 400
         if (stationOpCheck.length === 0) {
-            return res.status(400).json({ error: "Bad Parameter", message: "Station operator ID is invalid." });
+            return res.status(400).json({ error: "Bad Request", message: "Station operator ID is invalid." });
+        }
+        //Validate tagOpID
+        const[tagOpCheck] = await pool.query(
+            'SELECT company_id FROM vehicletags WHERE company_id = ?', 
+            [tagOpID]
+        );
+
+        // If tagOpID is invalid, return 404 Not Found
+        if (tagOpCheck.length === 0) {
+            return res.status(400).json({ error: "Bad Request", message: "Tag operator ID is invalid." });
         }
 
         const [results] = await pool.query(
