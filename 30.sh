@@ -1,6 +1,6 @@
 se2430 logout
 read -p "Press any key to resume ..."
-se2430 login --username vasilis --passw vasilis
+se2430 login --username sim --passw sim
 read -p "Press any key to resume ..."
 se2430 healthcheck
 read -p "Press any key to resume ..."

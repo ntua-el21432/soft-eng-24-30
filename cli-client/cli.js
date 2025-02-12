@@ -32,6 +32,25 @@ const db = mysql.createPool({
   database: process.env.DB_NAME || "tollmanager",
 });
 
+// Handle unknown commands
+program
+  .command('*')
+  .description('Handle unknown commands')
+  .action((cmd) => {
+    console.error(chalk.red(`❌ Error: Unknown cli command '${cmd}'.`));
+    console.error(chalk.yellow('ℹ️ Use `se2430 --help` to see available commands.'));
+    process.exit(400); // Exit with status code 400 (Bad Parameter)
+  });
+
+// Ensure unknown options also trigger an error
+program.configureOutput({
+  writeErr: (str) => {
+    console.error(chalk.red(`❌ Error: ${str.trim()}. Returned status 400`));
+    console.error('Use `se2430 --help` to see available commands.');
+    process.exit(400);
+  }
+});
+
 // 🚦 1️⃣ Command: Retrieve pass data per toll station
 program
   .command('tollstationpasses')
