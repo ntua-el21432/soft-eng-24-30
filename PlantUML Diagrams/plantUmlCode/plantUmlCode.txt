@@ -1,0 +1,318 @@
+addPassesPlantUmlCode:
+
+@startuml
+
+package "Presentation Tier" {
+    class FileUploadInterface {
+        +uploadFile(file: File): void
+        +showProgress(status: String): void
+        +displayError(message: String): void
+        +displaySummary(processed: int, success: int, rejected: int): void
+        +retryUpload(): void
+    }
+}
+
+package "Logic Tier" {
+    class CSVProcessor {
+        +parseFile(file: File): List<Pass>
+        +validateRow(row: String): boolean
+        +logInvalidRow(row: String, error: String): void
+    }
+
+    class BatchProcessor {
+        +processBatch(passes: List<Pass>): void
+    }
+
+    class AuditLogger {
+        +logUpload(userId: int, fileName: String, timestamp: Date, successCount: int, errorCount: int): void
+    }
+}
+
+package "Data Tier" {
+    class Pass {
+        -passId: int
+        -timestamp: Date
+        -tollId: int
+        -tagRef: String
+        -tagHomeId: int
+        -charge: double
+    }
+
+    class PassDAO {
+        +insertPass(pass: Pass): void
+        +logInvalidRow(row: String, error: String): void
+    }
+
+    class Operator {
+        -operatorId: int
+        -name: String
+        -cumulativeRevenue: double
+    }
+
+    class Toll {
+        -tollId: int
+        -location: String
+        -passageCount: int
+        -revenue: double
+    }
+
+    class OperatorDAO {
+        +updateRevenue(operatorId: int, amount: double): void
+    }
+
+    class TollDAO {
+        +updateStats(tollId: int, passageCount: int, revenue: double): void
+    }
+
+    class ErrorLog {
+        -errorId: int
+        -rowData: String
+        -errorMessage: String
+    }
+}
+
+FileUploadInterface --> CSVProcessor : "Uploads file to"
+CSVProcessor --> BatchProcessor : "Processes validated rows with"
+BatchProcessor --> PassDAO : "Inserts valid rows via"
+BatchProcessor --> AuditLogger : "Logs batch processing"
+PassDAO --> Pass : "Manages"
+PassDAO --> ErrorLog : "Logs invalid rows to"
+
+BatchProcessor --> OperatorDAO : "Updates revenue via"
+BatchProcessor --> TollDAO : "Updates statistics via"
+
+@enduml
+
+resetPassesPlantUmlCode:
+
+@startuml
+package "Presentation Tier" {
+    class AdminDashboard {
+        +uploadCSVFile(filePath: String): void
+        +showProgressIndicator(): void
+        +showResponse(message: String): void
+    }
+}
+
+package "Logic Tier" {
+    class CSVValidationService {
+        +validateFileFormat(filePath: String): boolean
+        +validateData(csvData
+
+
+tollStationPassesPlantUmlCode:
+
+@startuml
+
+package "Presentation Tier" {
+    class UserInterface {
+        - tollStation: String
+        - dateFrom: LocalDate
+        - dateTo: LocalDate
+        + displayPasses(passes: List<Pass>)
+        + showError(message: String)
+    }
+}
+
+package "Logic Tier" {
+    class TollPassManager {
+        + validateInput(tollStation: String, dateFrom: LocalDate, dateTo: LocalDate): boolean
+        + classifyPass(pass: Pass): String
+        + calculateCharge(pass: Pass): double
+        + getPasses(tollStation: String, dateFrom: LocalDate, dateTo: LocalDate): List<Pass>
+    }
+
+    class Validator {
+        + validateDateRange(dateFrom: LocalDate, dateTo: LocalDate): boolean
+        + validateTollStation(tollStation: String): boolean
+    }
+
+    class PassFormatter {
+        + formatPasses(passes: List<Pass>): List<FormattedPass>
+    }
+}
+
+package "Data Tier" {
+    class TollStation {
+        - stationId: int
+        - operatorId: int
+        - stationName: String
+        + getStationDetails(): String
+    }
+
+    class Pass {
+        - passId: int
+        - stationId: int
+        - timestamp: LocalDateTime
+        - tagId: String
+        - operatorId: int
+        - passCharge: double
+        + getPassDetails(): String
+    }
+
+    class DatabaseManager {
+        + executeQuery(query: String): List<Object>
+        + connect(): boolean
+    }
+}
+
+UserInterface --> TollPassManager : uses
+TollPassManager --> Validator : uses
+TollPassManager --> PassFormatter : uses
+TollPassManager --> DatabaseManager : retrieves data
+DatabaseManager --> TollStation : manages
+DatabaseManager --> Pass : manages
+
+@enduml
+
+
+passAnalysisPlantUmlCode:
+
+@startuml
+
+package "Presentation Tier" {
+    class UserInterface {
+        +selectTargetOperator(tagOpID: String): void
+        +inputTimePeriod(date_from: Date, date_to: Date): void
+        +displayResults(results: List<TransitEvent>): void
+        +showError(message: String): void
+    }
+}
+
+package "Logic Tier" {
+    class PassAnalysisService {
+        +validateInputs(tagOpID: String, date_from: Date, date_to: Date): void
+        +retrieveTransitEvents(stationOpID: String, tagOpID: String, date_from: Date, date_to: Date): List<TransitEvent>
+        +aggregatePassData(events: List<TransitEvent>): PassAnalysisResponse
+    }
+
+    class PassAnalysisResponse {
+        -stationOpID: String
+        -tagOpID: String
+        -requestTimestamp: Date
+        -periodFrom: Date
+        -periodTo: Date
+        -numberOfPasses: int
+        -passList: List<PassDetail>
+        +PassAnalysisResponse(...): void
+    }
+
+    class PassDetail {
+        -passIndex: int
+        -passID: String
+        -stationID: String
+        -timestamp: Date
+        -tagID: String
+        -passCharge: double
+        +PassDetail(...): void
+    }
+}
+
+package "Data Tier" {
+    class TransitEvent {
+        -passID: String
+        -stationOpID: String
+        -tagOpID: String
+        -stationID: String
+        -timestamp: Date
+        -tagID: String
+        -passCharge: double
+    }
+
+    class TransitEventRepository {
+        +retrieveEvents(stationOpID: String, tagOpID: String, date_from: Date, date_to: Date): List<TransitEvent>
+        +logRequest(request: RequestLog): void
+    }
+
+    class RequestLog {
+        -requestID: String
+        -stationOpID: String
+        -tagOpID: String
+        -requestTimestamp: Date
+        -periodFrom: Date
+        -periodTo: Date
+        -numberOfPasses: int
+    }
+}
+
+UserInterface --> PassAnalysisService : "calls"
+PassAnalysisService --> TransitEventRepository : "queries"
+PassAnalysisService o-- PassAnalysisResponse : "creates"
+PassAnalysisResponse *-- PassDetail : "contains"
+TransitEventRepository *-- TransitEvent : "manages"
+TransitEventRepository *-- RequestLog : "logs"
+
+@enduml
+
+
+mapInfoPlantUmlCode:
+
+@startuml
+
+package "Presentation Tier" {
+    class MapDisplay {
+        + displayMap(): void
+        + showPins(): void
+        + updateMap(data: List<TollStation>): void
+        + handleFilterSelection(operator: String): void
+    }
+}
+
+package "Logic Tier" {
+    class TollStationService {
+        + retrieveAllStations(): List<TollStation>
+        + retrieveStationsByOperator(operator: String): List<TollStation>
+        + formatDataForFrontend(stations: List<TollStation>): String
+        + cacheResults(key: String, data: String): void
+        + handleInteraction(operator: String): List<TollStation>
+    }
+
+    class CacheManager {
+        + saveToCache(key: String, data: String): void
+        + retrieveFromCache(key: String): String
+    }
+}
+
+package "Data Tier" {
+    class TollStation {
+        - stationID: String
+        - name: String
+        - operator: String
+        - location: Location
+        - tollCosts: TollCosts
+    }
+
+    class Location {
+        - latitude: double
+        - longitude: double
+    }
+
+    class TollCosts {
+        - car: double
+        - bike: double
+        - truck: double
+        - bus: double
+    }
+
+    class TollStationRepository {
+        + fetchAllStations(): List<TollStation>
+        + fetchStationsByOperator(operator: String): List<TollStation>
+        + logAnalytics(filterCriteria: String): void
+    }
+
+    class DatabaseConnection {
+        + executeQuery(query: String): ResultSet
+    }
+}
+
+' Associations
+MapDisplay --> TollStationService : "calls"
+TollStationService --> TollStationRepository : "uses"
+TollStationService --> CacheManager : "uses"
+TollStationRepository --> DatabaseConnection : "communicates"
+TollStation --> Location : "has"
+TollStation --> TollCosts : "has"
+
+@enduml
+
+
